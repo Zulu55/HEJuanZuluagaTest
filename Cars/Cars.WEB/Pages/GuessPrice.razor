@@ -1,0 +1,102 @@
+﻿@page "/GuessPrice/{CarId:int}"
+@inject IRepository repository
+@inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
+
+<h3>Guess Price</h3>
+
+@if (car is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row">
+        <div class="col-6">
+            <div class="mb-3">
+                <label>Make:</label>
+                <div>
+                    <b>@car.Make</b>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label>Model:</label>
+                <div>
+                    <b>@car.Model</b>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label>Year:</label>
+                <div>
+                    <b>@car.Year</b>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label>Doors:</label>
+                <div>
+                    <b>@car.Doors</b>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label>Color:</label>
+                <div>
+                    <b>@car.Color</b>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <EditForm Model="guessPriceModel" OnValidSubmit="GuessPriceAsync">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label>Price:</label>
+                    <div>
+                        <InputNumber class="form-control" @bind-Value="@guessPriceModel.Price" />
+                        <ValidationMessage For="@(() => guessPriceModel.Price)" />
+                    </div>
+                </div>
+                <button class="btn btn-primary" type="submit"><i class="oi oi-check" /> Guess Price</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+
+@code {
+    private Car? car;
+    private GuessPriceModel guessPriceModel = new();
+
+    [Parameter]
+    public int CarId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCarAsync();
+    }
+
+    private async Task LoadCarAsync()
+    {
+        var httpResponse = await repository.Get<Car>($"/api/cars/{CarId}");
+
+        if (httpResponse.Error)
+        {
+            var message = await httpResponse.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        car = httpResponse.Response;
+    }
+
+    private async Task GuessPriceAsync()
+    {
+        var difference = Math.Abs(car!.Price - guessPriceModel.Price);
+        if (difference > 5000)
+        {
+            await sweetAlertService.FireAsync("Error", "The difference in price is very big, give me another offer.", SweetAlertIcon.Error);
+        }
+        else
+        {
+            await sweetAlertService.FireAsync("Ok", "Great Job!.", SweetAlertIcon.Info);
+        }
+    }
+}

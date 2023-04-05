@@ -1,9 +1,46 @@
 ﻿@page "/"
+@inject IRepository repository
 
-<PageTitle>Index</PageTitle>
+<h3>Cars</h3>
 
-<h1>Hello, world!</h1>
+<GenericList MyList="Cars">
+    <Body>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Doors</th>
+                    <th>Color</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var car in Cars!)
+                {
+                    <tr>
+                        <td>@car.Make</td>
+                        <td>@car.Model</td>
+                        <td>@car.Year</td>
+                        <td>@car.Doors</td>
+                        <td>@car.Make</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm" href="/GuessPrice/@car.Id">Guess Price</a>
+                        </td>
+                    </tr>   
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
 
-Welcome to your new app.
+@code {
+    public List<Car>? Cars { get; set; }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    protected async override Task OnInitializedAsync()
+    {
+        var responseHppt = await repository.Get<List<Car>>("api/cars");
+        Cars = responseHppt.Response!;
+    }
+}
