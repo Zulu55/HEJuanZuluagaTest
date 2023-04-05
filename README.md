@@ -20,5 +20,5 @@
 **Guess Ok**
 ![Image text](https://github.com/Zulu55/HEJuanZuluagaTest/blob/main/Images/GuessOk.jpg)
 
-**The Query***
+**The Query**
 (https://github.com/Zulu55/HEJuanZuluagaTest/blob/main/SQLQuery.sql)
